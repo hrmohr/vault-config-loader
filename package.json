@@ -1,0 +1,12 @@
+{
+  "name": "vault-config-loader",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "glob": "^7.1.2",
+    "read-yaml": "^1.1.0",
+    "watch": "^1.0.2"
+  }
+}

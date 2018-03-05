@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  consul:
+    image: consul:1.0.6
+    hostname: "consul"
+    networks:
+      - consulnet
+    command: "agent -dev -client 0.0.0.0 -log-level info"
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+
+  vault:
+    depends_on:
+      - consul
+    image: vault:0.9.5
+    hostname: "vault"
+    networks:
+      - consulnet
+      - vaultnet
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: 'mytoken'
+      VAULT_LOCAL_CONFIG: >
+        {
+           "backend": {
+              "consul": {
+                 "path": "vault/",
+                 "address": "consul:8500",
+                 "scheme": "http"
+              }
+           },
+           "default_lease_ttl": "168h",
+           "max_lease_ttl": "720h"
+        }
+
+  vault-config-loader:
+    depends_on:
+      - vault
+    networks:
+      - vaultnet
+    build: .
+    volumes:
+      - ./config/:/config
+    environment:
+      VAULT_TOKEN_ID: 'mytoken'
+
+networks:
+  consulnet:
+  vaultnet:
